@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周易</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#f7f4ef;color:#1a1a1a;
+  font-family:'Courier New',monospace;font-size:18px;
+  max-width:980px;margin:0 auto;padding:20px;line-height:1.6;
+}
+#topbar{display:flex;justify-content:flex-end;margin-bottom:14px}
+#main{display:flex;gap:28px;align-items:flex-start;margin-bottom:12px}
+
+#hex-block,#biagua{
+  flex-shrink:0;
+  font-family:'Courier New',monospace;font-size:18px;
+  white-space:pre;line-height:1.2;
+  border:1px solid #ddd;padding:6px 8px;
+  width:calc(9ch + 18px);min-width:calc(9ch + 18px);
+  background:#fafaf8;
+}
+
+#right{flex:1;min-width:0}
+#prompt{font-size:.88em;color:#777;margin-bottom:4px;min-height:1.4em}
+
+/* hdr reserves space always; opacity controls visibility */
+#hdr{
+  font-size:.88em;color:#999;
+  height:1.55em;overflow:hidden;
+  margin-bottom:8px;
+}
+
+#sarea{margin-bottom:10px}
+.srow{display:flex;align-items:baseline;justify-content:center;margin-bottom:5px;flex-wrap:nowrap}
+
+.st{display:inline-block;width:1.3em;text-align:center;cursor:pointer;user-select:none}
+.st:hover:not(.dim){opacity:.6}
+.st.dim{color:#ccc;pointer-events:none}
+.yang{color:#1a1a1a}
+.yin{color:#bbb}
+.sel{color:#1a1a1a;font-weight:bold}
+
+/* gaps always rendered; .off = invisible placeholder; .dis = greyed disabled */
+.gap{display:inline-block;width:.85em;text-align:center;cursor:pointer;user-select:none;color:#ddd;font-size:.8em}
+.gap:hover{color:#888}
+.gap.on{color:#1a1a1a}
+.gap.dis{cursor:default;color:#eee;pointer-events:none}
+.gap.off{opacity:0;pointer-events:none}
+
+#confirm-btn{
+  background:#f7f4ef;color:#1a1a1a;
+  border:1px solid #bbb;padding:5px 18px;
+  font-size:.92em;font-family:monospace;cursor:pointer;
+}
+#confirm-btn:hover:not(:disabled){border-color:#333}
+#confirm-btn:disabled{opacity:.25;cursor:default}
+.btn-reset{
+  background:none;color:#ccc;border:1px solid #e0ddd8;
+  padding:2px 10px;font-size:.78em;font-family:monospace;cursor:pointer;
+}
+.btn-reset:hover{color:#888;border-color:#bbb}
+#cinfo{font-size:.88em;color:#666;margin-top:10px}
+
+#log{
+  border-top:1px solid #e0ddd8;padding-top:8px;
+  font-size:.78em;color:#999;
+  min-height:2.8em;max-height:160px;
+  overflow-y:auto;white-space:pre;line-height:1.8;
+}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <span style="font-size:.78em;color:#bbb;margin-right:6px">列數</span>
+  <input id="row-input" type="number" min="1" max="10" value="5"
+    style="width:3em;font-family:monospace;font-size:.78em;background:#f7f4ef;border:1px solid #ddd;padding:1px 4px;color:#888;text-align:center"
+    oninput="setRows(+this.value)">
+  <button class="btn-reset" style="margin-left:10px" onclick="reset()">重置</button>
+</div>
+<div id="main">
+  <pre id="hex-block"></pre>
+  <div id="right">
+    <div id="prompt"></div>
+    <div id="hdr">太極：✦</div>
+    <div id="sarea"></div>
+    <button id="confirm-btn" onclick="onConfirm()">確</button>
+    <div id="cinfo"></div>
+  </div>
+</div>
+<pre id="log"></pre>
+
+<script>
+'use strict';
+
+function mod4(n){ return (n-1)%4+1; }
+function pad2(n){ return n<10 ? '0'+n : String(n); }
+
+const SYM  = {25:'#########', 21:'===   ===', 17:'=========', 13:'###   ###'};
+const YNAM = {25:'老陽九', 21:'少陰八', 17:'少陽七', 13:'老陰六'};
+const ISYN = {25:true,  21:false, 17:true,  13:false};
+const ISMV = {25:true,  21:false, 17:false, 13:true};
+
+const KW = [
+  [ 2,24, 7,19,15,36,46,11],
+  [16,51,40,54,62,55,32,34],
+  [ 8, 3,29,60,39,63,48, 5],
+  [45,17,47,58,31,49,28,43],
+  [23,27, 4,41,52,22,18,26],
+  [35,21,64,38,56,30,50,14],
+  [20,42,59,61,53,37,57, 9],
+  [12,25, 6,10,33,13,44, 1],
+];
+const HN = ['',
+  '乾','坤','屯','蒙','需','訟','師','比','小畜','履',
+  '泰','否','同人','大有','謙','豫','隨','蠱','臨','觀',
+  '噬嗑','賁','剝','復','無妄','大畜','頤','大過','坎','離',
+  '咸','恆','遯','大壯','晉','明夷','家人','睽','蹇','解',
+  '損','益','夬','姤','萃','升','困','井','革','鼎',
+  '震','艮','漸','歸妹','豐','旅','巽','兌','渙','節',
+  '中孚','小過','既濟','未濟'
+];
+
+function tv(ls,s){ return (ls[s+2].y?4:0)|(ls[s+1].y?2:0)|(ls[s].y?1:0); }
+function hexInfo(ls){
+  const lo=tv(ls,0), up=tv(ls,3), n=KW[up][lo];
+  return {n, name:HN[n], sym:String.fromCodePoint(0x4DC0+n-1)};
+}
+function rowOf(i){ return 5-i; }
+
+// ── state ─────────────────────────────────────────────────────────────────────
+let S;
+
+function initState(){
+  const rows = S ? S.rows : 5;
+  S = {
+    phase:'taiji',
+    line:0, round:0,
+    sticks:49,
+    lineSum:0,
+    setAsides:[],
+    hexagram:[],
+    hexRows:Array(6).fill('         '),
+    rows,
+    arr:makeArr(50),
+    sp:Array(rows).fill(null),
+    renFrom:null,
+  };
+}
+
+function setRows(n){
+  if(!n || n<1 || n>10) return;
+  if(S.phase==='taiji'){
+    S.rows = n;
+    S.arr  = makeArr(S.phase==='taiji' ? 50 : S.sticks);
+    S.sp   = Array(n).fill(null);
+    render();
+  }
+  // If mid-round, just store for next 爻
+  S.rows = n;
+}
+
+function makeArr(n){
+  const rows = S ? S.rows : 5;
+  const base=Math.floor(n/rows), rem=n%rows, a=[];
+  for(let row=0;row<rows;row++){
+    const cnt = row<rem ? base+1 : base;
+    for(let p=0;p<cnt;p++) a.push({row, p, status:null});
+  }
+  return a;
+}
+
+function rowSlots(r){ return S.arr.filter(s=>s.row===r); }
+function sgroup(s){ return s.p < S.sp[s.row] ? 'yang' : 'yin'; }
+
+
+// ── render ────────────────────────────────────────────────────────────────────
+function buildHexContent(){
+  // 本卦 (6 rows) + separator + 變卦 (6 rows) = 13 rows
+  const bianRows = Array(6).fill('         ');
+  S.hexagram.forEach((y,i)=>{
+    // moving: lao yang→shao yin, lao yin→shao yang; else unchanged
+    bianRows[rowOf(i)] = y.moving ? SYM[y.yang?21:17] : SYM[y.total];
+  });
+  return [...S.hexRows, '─────────', ...bianRows].join('\n');
+}
+
+function render(){
+  document.getElementById('hex-block').textContent = buildHexContent();
+
+  if(S.phase==='complete'){ renderComplete(); return; }
+
+  document.getElementById('cinfo').textContent = '';
+  document.getElementById('confirm-btn').style.display = '';
+
+  const prompts = {taiji:'擇一　太極', split:'分策為二', ren:'挂一　人策'};
+  document.getElementById('prompt').textContent = prompts[S.phase];
+
+  // #hdr always has content '太極：✦'; show throughout entire 爻, not just taiji phase
+  const t = S.arr.find(s=>s.status==='taiji');
+  const showTaiji = S.phase==='split' || S.phase==='ren' || (S.phase==='taiji' && !!t);
+  document.getElementById('hdr').style.opacity = showTaiji ? '1' : '0';
+
+  // Pre-compute disabled set for ren phase
+  const disSet = S.phase==='ren' ? computeRenDisabled() : null;
+
+  document.getElementById('sarea').innerHTML = buildStickArea(disSet);
+
+  const yangTotal = S.arr.filter(s=>s.status==='yang').length;
+  const yinTotal  = S.arr.filter(s=>s.status==='yin').length;
+  const ok =
+    (S.phase==='taiji' && !!t) ||
+    (S.phase==='split' && S.sp.every(v=>v!==null) && yangTotal>0 && yinTotal>0) ||
+    (S.phase==='ren'   && !!S.arr.find(s=>s.status==='ren'));
+  document.getElementById('confirm-btn').disabled = !ok;
+}
+
+// Returns Set of indices that are disabled for ren selection
+function computeRenDisabled(){
+  const result = new Set();
+  const ren    = S.arr.find(s=>s.status==='ren');
+  const prevOG = ren ? sgroup(ren) : null;
+  const yBase  = S.arr.filter(s=>s.status==='yang').length;
+  const iBase  = S.arr.filter(s=>s.status==='yin').length;
+  S.arr.forEach((s,i)=>{
+    if(s.status!=='yang' && s.status!=='yin') return;
+    const ya = yBase + (prevOG==='yang'?1:0) - (s.status==='yang'?1:0);
+    const ia = iBase + (prevOG==='yin' ?1:0) - (s.status==='yin' ?1:0);
+    if(ya<1 || ia<1) result.add(i);
+  });
+  return result;
+}
+
+function buildStickArea(disSet){
+  let h='';
+  for(let r=0;r<S.rows;r++){
+    const slots = rowSlots(r);
+    if(!slots.length) continue;
+    h += '<div class="srow">';
+    // Edge gap before first stick (gapPos = 0)
+    h += gapHTML(r, 0);
+    slots.forEach((s)=>{
+      const i = S.arr.indexOf(s);
+      h += stickHTML(s, i, disSet);
+      // Gap after this stick (gapPos = s.p + 1)
+      h += gapHTML(r, s.p+1);
+    });
+    h += '</div>';
+  }
+  return h;
+}
+
+function gapHTML(r, gapPos){
+  if(S.phase!=='split') return `<span class="gap off">·</span>`;
+  const on = S.sp[r]===gapPos;
+  return `<span class="gap${on?' on':''}" onclick="clickGap(${r},${gapPos})">${on?'│':'·'}</span>`;
+}
+
+function stickHTML(s, i, disSet){
+  if(s.status==='taiji') return `<span class="st dim">·</span>`;
+
+  if(S.phase==='taiji')
+    return `<span class="st" onclick="clickTaiji(${i})">○</span>`;
+
+  if(S.phase==='split'){
+    const sp=S.sp[s.row];
+    if(sp===null)  return `<span class="st">○</span>`;
+    if(s.p < sp)   return `<span class="st yang">●</span>`;
+    return                 `<span class="st yin">◌</span>`;
+  }
+
+  if(S.phase==='ren'){
+    if(s.status==='ren')
+      return `<span class="st sel" onclick="clickRen(${i})">◉</span>`;
+    const ch  = s.status==='yang' ? '●' : '◌';
+    const grp = s.status==='yang' ? 'yang' : 'yin';
+    if(disSet && disSet.has(i))
+      return `<span class="st ${grp} dim">${ch}</span>`;
+    return `<span class="st ${grp}" onclick="clickRen(${i})">${ch}</span>`;
+  }
+
+  return `<span class="st">○</span>`;
+}
+
+function renderComplete(){
+  document.getElementById('prompt').textContent='';
+  document.getElementById('hdr').style.opacity='0';
+  document.getElementById('sarea').innerHTML='';
+  document.getElementById('confirm-btn').style.display='none';
+
+  const lines = S.hexagram.map(y=>({y:y.yang}));
+  const pH    = hexInfo(lines);
+  const hasM  = S.hexagram.some(y=>y.moving);
+
+  if(hasM){
+    const fl = S.hexagram.map(y=>({y: y.moving?!y.yang:y.yang}));
+    const fH = hexInfo(fl);
+    document.getElementById('cinfo').textContent = `${pH.sym} ${pH.name}　→　${fH.sym} ${fH.name}`;
+  } else {
+    document.getElementById('cinfo').textContent = `${pH.sym} ${pH.name}　無變爻`;
+  }
+}
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+function partialRow(vals){
+  const a = Array(9).fill(' ');
+  if(vals[0]!=null) a[0] = String(vals[0]);
+  if(vals[1]!=null) a[3] = String(vals[1]);
+  return a.join('');
+}
+
+// ── click handlers ────────────────────────────────────────────────────────────
+function clickTaiji(i){
+  S.arr.forEach(s=>{ if(s.status==='taiji') s.status=null; });
+  S.arr[i].status='taiji';
+  render();
+}
+
+function clickGap(r, gapPos){
+  S.sp[r]=gapPos;
+  S.arr.forEach(s=>{
+    if(s.row!==r || s.status==='taiji') return;
+    s.status = s.p<gapPos ? 'yang' : 'yin';
+  });
+  render();
+}
+
+function clickRen(i){
+  const s = S.arr[i];
+  if(s.status==='ren'){
+    s.status=sgroup(s); S.renFrom=null; render(); return;
+  }
+  if(s.status!=='yang' && s.status!=='yin') return;
+  // Check constraint: simulate and verify yc≥1, nc≥1
+  const ren    = S.arr.find(x=>x.status==='ren');
+  const prevOG = ren ? sgroup(ren) : null;
+  const yBase  = S.arr.filter(x=>x.status==='yang').length;
+  const iBase  = S.arr.filter(x=>x.status==='yin').length;
+  const ya = yBase + (prevOG==='yang'?1:0) - (s.status==='yang'?1:0);
+  const ia = iBase + (prevOG==='yin' ?1:0) - (s.status==='yin' ?1:0);
+  if(ya<1 || ia<1) return; // blocked
+  if(ren) ren.status=prevOG;
+  S.renFrom=sgroup(s);
+  s.status='ren';
+  render();
+}
+
+// ── confirm ───────────────────────────────────────────────────────────────────
+function onConfirm(){
+  if(S.phase==='taiji') doTaiji();
+  else if(S.phase==='split') doSplit();
+  else if(S.phase==='ren') doRen();
+}
+
+function doTaiji(){
+  S.sticks=49; S.phase='split'; render();
+}
+
+function doSplit(){
+  S.phase='ren'; render();
+}
+
+function doRen(){
+  const yc = S.arr.filter(s=>s.status==='yang').length;
+  const nc = S.arr.filter(s=>s.status==='yin').length;
+  const tr = mod4(yc), dr = mod4(nc), sa = 1+tr+dr;
+  const rem = S.sticks-sa;
+
+  appendLog(`陽${pad2(yc)}陰${pad2(nc)}　挂一自${S.renFrom==='yang'?'陽':'陰'}　天閏${tr}地閏${dr}　取${sa}　餘${rem}`);
+
+  S.lineSum += sa;
+  S.setAsides.push(sa);
+  S.round++;
+
+  if(S.round===3){
+    const tot = S.lineSum;
+    S.hexagram.push({yang:ISYN[tot], moving:ISMV[tot], total:tot});
+    S.hexRows[rowOf(S.line)] = SYM[tot];
+    appendLog(`          三變${tot}　${YNAM[tot]}`);
+    S.line++; S.round=0; S.lineSum=0; S.setAsides=[];
+    if(S.line===6){ S.phase='complete'; render(); return; }
+    S.arr=makeArr(50); S.sp=Array(S.rows).fill(null); S.renFrom=null;
+    S.sticks=49; S.phase='taiji';
+  } else {
+    // Show partial set-aside values in the active hex row
+    S.hexRows[rowOf(S.line)] = partialRow(S.setAsides);
+    S.sticks=rem;
+    S.arr=makeArr(rem); S.sp=Array(S.rows).fill(null); S.renFrom=null;
+    S.phase='split';
+  }
+  render();
+}
+
+// ── log ───────────────────────────────────────────────────────────────────────
+function appendLog(t){
+  const el=document.getElementById('log');
+  el.textContent+=(el.textContent?'\n':'')+t;
+  el.scrollTop=el.scrollHeight;
+}
+
+// ── reset ─────────────────────────────────────────────────────────────────────
+function reset(){
+  document.getElementById('log').textContent='';
+  document.getElementById('cinfo').textContent='';
+  document.getElementById('confirm-btn').style.display='';
+  initState();
+  document.getElementById('row-input').value = S.rows;
+  render();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const b=document.getElementById('confirm-btn');
+    if(!b.disabled&&b.style.display!=='none') onConfirm();
+  }
+});
+
+initState();
+render();
+</script>
+</body>
+</html>

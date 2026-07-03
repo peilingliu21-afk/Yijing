@@ -1,0 +1,18 @@
+{
+  "hexagram_number": 30,
+  "hexagram_name": "離",
+  "interpretation_ti": "此卦為「有所依附方能成立、方能發光」的處境。它一面肯定光明與明察之美。",
+  "interpretation_yong": "一面以柔順附麗於正道、守持中道為亨通的條件。",
+  "structural_rationale_ti": "上下卦皆為離（火、明），火無自體必附薪而燃、附麗而生光；兩明相疊為「明兩作」，象徵光明相繼不絕而遍照四方。",
+  "structural_rationale_yong": "",
+  "interpretation": "此卦為「有所依附方能成立、方能發光」的處境。它一面肯定光明與明察之美，一面以柔順附麗於正道、守持中道為亨通的條件。",
+  "structural_rationale": "上下卦皆為離（火、明），火無自體必附薪而燃、附麗而生光；兩明相疊為「明兩作」，象徵光明相繼不絕而遍照四方。",
+  "line_position_key": [
+    { "lines": [2, 5], "meaning": "居中之柔，附麗於群剛而守中正" },
+    { "lines": [1, 3, 4, 6], "meaning": "剛明之力，須附麗於正受柔節制" }
+  ],
+  "yin_yang_key": {
+    "yang": "火之明烈剛亢，兼具明察之能與焚躁之險",
+    "yin": "中虛而容明、柔順附麗於群剛的中正之德"
+  }
+}

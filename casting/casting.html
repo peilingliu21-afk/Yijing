@@ -86,7 +86,7 @@ body{
     <div id="prompt"></div>
     <div id="hdr">太極：✦</div>
     <div id="sarea"></div>
-    <button id="confirm-btn" onclick="onConfirm()">確</button>
+    <button id="confirm-btn" onclick="onConfirm()">確認</button>
     <div id="cinfo"></div>
   </div>
 </div>
@@ -195,7 +195,7 @@ function render(){
   document.getElementById('cinfo').textContent = '';
   document.getElementById('confirm-btn').style.display = '';
 
-  const prompts = {taiji:'擇一　太極', split:'分策為二', ren:'挂一　人策'};
+  const prompts = {taiji:'擇一　太極', split:'分策爲二', ren:'掛一　人策'};
   document.getElementById('prompt').textContent = prompts[S.phase];
 
   // #hdr always has content '太極：✦'; show throughout entire 爻, not just taiji phase
@@ -368,7 +368,7 @@ function doRen(){
   const tr = mod4(yc), dr = mod4(nc), sa = 1+tr+dr;
   const rem = S.sticks-sa;
 
-  appendLog(`陽${pad2(yc)}陰${pad2(nc)}　挂一自${S.renFrom==='yang'?'陽':'陰'}　天閏${tr}地閏${dr}　取${sa}　餘${rem}`);
+  appendLog(`陽${pad2(yc)}陰${pad2(nc)}　掛一自${S.renFrom==='yang'?'陽':'陰'}　天閏${tr}地閏${dr}　取${sa}　餘${rem}`);
 
   S.lineSum += sa;
   S.setAsides.push(sa);

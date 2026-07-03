@@ -1,0 +1,19 @@
+{
+  "hexagram_number": 52,
+  "hexagram_name": "艮",
+  "interpretation_ti": "此卦是「該止則止、安於本分」的自我節制狀態。它描述人收束心念、止於無欲之處，內外互不牽動而得安定。",
+  "interpretation_yong": "",
+  "structural_rationale_ti": "上下卦皆為艮（山、止），兩山相疊為兼山；且上下三組對應爻同性敵應、不相往來，象徵各安其位、彼此隔絕而止於所當止之處。",
+  "structural_rationale_yong": "",
+  "interpretation": "此卦是「該止則止、安於本分」的自我節制狀態。它描述人收束心念、止於無欲之處，內外互不牽動而得安定。",
+  "structural_rationale": "上下卦皆為艮（山、止），兩山相疊為兼山；且上下三組對應爻同性敵應、不相往來，象徵各安其位、彼此隔絕而止於所當止之處。",
+  "line_position_key": [
+    { "lines": [1, 2], "meaning": "止於身體末梢與初動，防微於外在行動" },
+    { "lines": [3, 4], "meaning": "止於身之界限與全軀，過剛則傷、順則安" },
+    { "lines": [5, 6], "meaning": "止於言語與德性，止道深化圓成之處" }
+  ],
+  "yin_yang_key": {
+    "yang": "作為止之界限與主宰的剛實之力，鎮壓下方",
+    "yin":  "被收束、受節制而求安於本位的順止之質"
+  }
+}

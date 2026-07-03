@@ -1,0 +1,14 @@
+2, for each hexagram, I want you to extract out guaci and yaoci, and after a first filter of 連綿詞 (because they are not supposed to be analyzed character by character), I would ask you to get the Old Chinese meaning for every character.  the universal 初二三四五上 can be skipped, and character analysis should be practical and not too mechanical (e.g., 維 is sometimes purely rhythmic and you should not invent a meaning) .
+
+if you have access, you should use academic sources such as https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/dialect.php?word=%E8%82%89
+
+each character has multiple meanings in general, so step 1 can be used to choose meanings.  HOWEVER, each meaning selection should still be faithful and not post hoc: step 1 can only help with choosing, but not setting the meaning.
+
+the result should also be saved in its own folder
+
+
+
+
+Then, translate while classifying the text: 
+each small clause should be interpreted as: explaining the general abstract meaning of the line position and value, or giving an example of this interpretation, or conclusion (like auspicious or not, what you should do, etc.)
+note that the current comma and periods might not be where they should be.

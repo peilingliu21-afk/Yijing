@@ -1,0 +1,19 @@
+{
+  "hexagram_number": 58,
+  "hexagram_name": "兌",
+  "interpretation_ti": "此卦是一種以喜悅、和樂、溝通為主導的人際與群體狀態。",
+  "interpretation_yong": "喜悅能使人親近融洽，但必須以正道為守，否則墮為諂媚逢迎而由吉轉凶。",
+  "structural_rationale_ti": "上下卦皆為兌（澤、悅），兩澤相連、同體相重，象徵喜悅往復不已、交互滋潤而彼此增益的持續狀態。",
+  "structural_rationale_yong": "",
+  "interpretation": "此卦是一種以喜悅、和樂、溝通為主導的人際與群體狀態。喜悅能使人親近融洽，但必須以正道為守，否則墮為諂媚逢迎而由吉轉凶。",
+  "structural_rationale": "上下卦皆為兌（澤、悅），兩澤相連、同體相重，象徵喜悅往復不已、交互滋潤而彼此增益的持續狀態。",
+  "line_position_key": [
+    { "lines": [2, 5], "meaning": "居中之剛，內在誠正堅實的根柢" },
+    { "lines": [3, 6], "meaning": "居外之柔，外顯的悅人親和之姿" },
+    { "lines": [1, 4], "meaning": "初起與抉擇，悅之守正與取捨" }
+  ],
+  "yin_yang_key": {
+    "yang": "內在誠正、剛實自守的喜悅，即悅之正",
+    "yin": "外顯柔和悅人之姿，易滑向向外諂求逐物"
+  }
+}

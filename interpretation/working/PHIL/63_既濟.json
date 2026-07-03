@@ -1,0 +1,18 @@
+{
+  "hexagram_number": 63,
+  "hexagram_name": "既濟",
+  "interpretation_ti": "目標已達、條件全備、萬事俱成的圓滿完成之境。此為盛極將衰的拐點，完美之中已埋下新的危機。",
+  "interpretation_yong": "主題在守成戒懼而非進取。",
+  "structural_rationale_ti": "下卦為離（火、明），上卦為坎（水、險）；水火相濟成炊煮之功，象徵對立轉為相成的完成，然平衡脆弱，故內明外險、成而隨時可傾覆。",
+  "structural_rationale_yong": "",
+  "interpretation": "目標已達、條件全備、萬事俱成的圓滿完成之境。此為盛極將衰的拐點，完美之中已埋下新的危機，主題在守成戒懼而非進取。",
+  "structural_rationale": "下卦為離（火、明），上卦為坎（水、險）；水火相濟成炊煮之功，象徵對立轉為相成的完成，然平衡脆弱，故內明外險、成而隨時可傾覆。",
+  "line_position_key": [
+    { "lines": [1, 2, 3], "meaning": "完成之局內明、成事之力所在" },
+    { "lines": [4, 5, 6], "meaning": "已入險境、由盛趨危之途" }
+  ],
+  "yin_yang_key": {
+    "yang": "已完成的剛健成事之力，須收斂務實而非進取",
+    "yin": "守成的柔德與對隱患的戒備感知"
+  }
+}

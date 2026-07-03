@@ -18,9 +18,22 @@ Source text and analysis live under `interpretation/working/`, processed in four
 | `OPS/` | Raw XHTML files from a Wikisource EPUB, one per hexagram plus the Ten Wings | Downloaded source |
 | `JSON/` | Structured source text: hexagram number, name, ASCII art, 卦辭, 爻辭, 彖, 象 | `parse_hexagrams.py` — re-runnable |
 | `RESEARCH/` | Verbose research notes per hexagram: modern sinological interpretation, structural logic, line positions, yin/yang meaning | `analyze_hexagrams_workflow.js` stage 1 (Opus, web search) |
-| `PHIL/` | Clean interpretive skeleton per hexagram: `interpretation`, `structural_rationale`, `line_position_key`, `yin_yang_key` | `analyze_hexagrams_workflow.js` stage 2 (condensed from RESEARCH) |
+| `PHIL/` | Clean interpretive skeleton per hexagram; each file contains both the original fields and the 體/用 split described below | `analyze_hexagrams_workflow.js` stage 2 (condensed from RESEARCH), then `split_ti_yong_workflow.js` |
 
-The workflow is idempotent — re-running it skips hexagrams whose output files already exist, so partial runs continue automatically.
+`analyze_hexagrams_workflow.js` is idempotent — re-running it skips hexagrams whose output files already exist, so partial runs continue automatically.
+
+### 體/用 split
+
+Each PHIL file separates descriptive content (體, tǐ — what the situation *is*) from prescriptive content (用, yòng — what to do, what to watch for, auspiciousness judgements). The split is applied in-place by `split_ti_yong_workflow.js`, which adds four fields before the original ones:
+
+| Field | Content |
+|-------|---------|
+| `interpretation_ti` | Purely descriptive: what type of situation or state this hexagram names |
+| `interpretation_yong` | Prescriptive: correct attitude, action direction, what to avoid |
+| `structural_rationale_ti` | Which structural features of the hexagram produce the situation |
+| `structural_rationale_yong` | What the structure implies one should or should not do (empty string if none) |
+
+The original `interpretation` and `structural_rationale` fields are kept as legacy. The workflow is idempotent — files that already contain `interpretation_ti` are skipped.
 
 ## Casting
 

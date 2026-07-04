@@ -1,0 +1,18 @@
+HEX('phil', {
+  "hexagram_number": 17,
+  "hexagram_name": "隨",
+  "interpretation_ti": "此卦是一種以正道順應時勢、行動合於時宜而普遍為人所樂隨的圓融處境。其核心不在隨從某人，而在隨順時機並不失其正。",
+  "interpretation_yong": "",
+  "structural_rationale_ti": "下卦為震（動），上卦為兌（悅）；動而令人心悅則自然相隨，象徵以正道發動、人欣然跟從的動應關係。",
+  "structural_rationale_yong": "",
+  "interpretation": "此卦是一種以正道順應時勢、行動合於時宜而普遍為人所樂隨的圓融處境。其核心不在隨從某人，而在隨順時機並不失其正。",
+  "structural_rationale": "下卦為震（動），上卦為兌（悅）；動而令人心悅則自然相隨，象徵以正道發動、人欣然跟從的動應關係。",
+  "line_position_key": [
+    { "lines": [1, 4, 5], "meaning": "被隨、以正發動而受承載的陽位" },
+    { "lines": [2, 3, 6], "meaning": "順承跟隨、與所隨者相繫的陰位" }
+  ],
+  "yin_yang_key": {
+    "yang": "以正道主動發起、值得被跟隨並受承載的一方",
+    "yin": "貼近承載於陽之下、擇正而順承相繫的一方"
+  }
+});

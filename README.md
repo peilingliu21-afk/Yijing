@@ -6,7 +6,7 @@ Tools for I-Ching (周易) study. Approached as philosophy, not divination mysti
 
 ```
 casting/        yarrow-stalk casting app (casting.html)
-interpretation/ working notes on hexagram meanings
+interpretation/ working notes on hexagram meanings + reading.html
 ```
 
 ## Interpretation
@@ -16,9 +16,11 @@ Source text and analysis live under `interpretation/working/`, processed in four
 | Directory | Contents | How produced |
 |-----------|----------|--------------|
 | `OPS/` | Raw XHTML files from a Wikisource EPUB, one per hexagram plus the Ten Wings | Downloaded source |
-| `JSON/` | Structured source text: hexagram number, name, ASCII art, 卦辭, 爻辭, 彖, 象 | `parse_hexagrams.py` — re-runnable |
+| `TEXT/` | Structured source text: hexagram number, name, ASCII art, 卦辭, 爻辭, 彖, 象 | `parse_hexagrams.py` — re-runnable |
 | `RESEARCH/` | Verbose research notes per hexagram: modern sinological interpretation, structural logic, line positions, yin/yang meaning | `analyze_hexagrams_workflow.js` stage 1 (Opus, web search) |
 | `PHIL/` | Clean interpretive skeleton per hexagram; each file contains both the original fields and the 體/用 split described below | `analyze_hexagrams_workflow.js` stage 2 (condensed from RESEARCH), then `split_ti_yong_workflow.js` |
+
+Files in `TEXT/` and `PHIL/` are `.js`, not `.json`: each one is a call to `HEX(kind, { ... })` wrapping the same object literal a `.json` file would hold. `reading.html` (below) loads them as `<script>` tags rather than fetching them as data, so it works straight off `file://` — no server, no build step. The object literal is still plain JSON internally; only the `HEX('text', ...)` / `HEX('phil', ...)` wrapper is new.
 
 `analyze_hexagrams_workflow.js` is idempotent — re-running it skips hexagrams whose output files already exist, so partial runs continue automatically.
 
@@ -34,6 +36,21 @@ Each PHIL file separates descriptive content (體, tǐ — what the situation *i
 | `structural_rationale_yong` | What the structure implies one should or should not do (empty string if none) |
 
 The original `interpretation` and `structural_rationale` fields are kept as legacy. The workflow is idempotent — files that already contain `interpretation_ti` are skipped.
+
+## Reading
+
+`interpretation/working/reading.html` — a browser for all 64 hexagrams, in the same visual style as the casting app. Just open the file directly (double-click, or `open reading.html`) — no server, no build step.
+
+It reads `TEXT/` and `PHIL/` directly, with no copied/generated data: the page has a fixed list of 128 `<script src="TEXT/...">` / `<script src="PHIL/...">` tags, and each file registers its own contents by calling `HEX(kind, {...})` when it loads. Editing a `TEXT/` or `PHIL/` file and reloading the page shows the change immediately — the two folders *are* the data, not a source that gets copied somewhere else.
+
+Two navigation blocks sit above the reader:
+
+- **卦序** — the standard 1–64 sequence, as a row of glyphs.
+- **上下卦表** — the same 64 hexagrams arranged in an 8×8 table by upper/lower trigram (rows = upper trigram, columns = lower trigram, axes labeled with the trigram symbols ☰☱☲☳☴☵☶☷). This grouping is computed directly from each hexagram's own line pattern, not from a separate lookup table.
+
+Click any glyph in either block, use the 前卦/後卦 buttons, arrow keys, or a `#n` URL hash (e.g. `reading.html#5`) to navigate.
+
+Each hexagram page shows the ASCII hexagram, the classical text (卦辭, 彖, 大象, 爻辭 with paired 小象, and 文言 for hexagrams 1–2), followed by the PHIL skeleton: 卦義 and 結構 split into 體/用, the 爻位 groups (hovering a group highlights the corresponding lines in the hexagram), and the 陰陽 key.
 
 ## Casting
 

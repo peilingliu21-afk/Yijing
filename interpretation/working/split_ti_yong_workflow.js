@@ -23,8 +23,8 @@ const FILES_SCHEMA = {
 }
 
 function buildSplitPrompt(filePath) {
-  const filename     = filePath.split('/').pop()           // e.g. 05_需.json
-  const stem         = filename.replace('.json', '')       // e.g. 05_需
+  const filename     = filePath.split('/').pop()           // e.g. 05_需.js
+  const stem         = filename.replace('.js', '')         // e.g. 05_需
   const researchPath = `${RESEARCH_DIR}/${stem}.txt`
 
   return `你有兩份資料可供參考：
@@ -35,10 +35,10 @@ ${filePath}
 2. 完整研究筆記（RESEARCH）：
 ${researchPath}
 
+PHIL 檔的內容格式是 \`HEX('phil', { ... });\`——一個呼叫 HEX() 函式的 JS 陳述式，括號內是物件字面量。這是為了讓網頁能以 <script> 標籤直接載入而不需要伺服器；除了拆分下述兩個欄位以外，不要更動這層包裝。
+
 請先讀取兩份資料。PHIL 檔有兩個欄位需要拆分：\`interpretation\` 與 \`structural_rationale\`。
 拆分時以 PHIL 的現有文字為主，RESEARCH 作為補充參考——若 PHIL 的用內容因壓縮而流失，可從 RESEARCH 補回，但不得添加 PHIL 原本沒有意圖的新內容。
-
-此檔有兩個欄位需要拆分：\`interpretation\` 與 \`structural_rationale\`。
 
 拆分規則：
 - 體（ti）：純描述性——說明此卦象徵什麼處境、意象或格局。只說「是什麼」。
@@ -52,9 +52,9 @@ ${researchPath}
 - 原文的所有實質內容必須出現在體或用之一，不得遺漏，不得添加新內容。
 - 若某欄位確實完全沒有用的內容，對應的用欄位設為空字串 ""。但請認真審視每句話——prescriptive 子句常嵌於描述句末。
 
-讀取檔案後，將以下欄位加入 JSON 物件的最前面（在 hexagram_number 之後，在現有的 interpretation 之前），並覆寫原檔：
+讀取檔案後，將以下欄位加入物件字面量的最前面（在 hexagram_number 之後，在現有的 interpretation 之前），保留 \`HEX('phil', ... );\` 包裝，並覆寫原檔：
 
-{
+HEX('phil', {
   "hexagram_number": (原值),
   "hexagram_name": (原值),
   "interpretation_ti": "體的部分",
@@ -65,16 +65,16 @@ ${researchPath}
   "structural_rationale": (原值，保留),
   "line_position_key": (原值，保留),
   "yin_yang_key": (原值，保留)
-}
+});
 
-確保輸出為有效 JSON，UTF-8 編碼，覆寫原檔。`
+確保物件部分為有效 JSON、整體為有效 JS 陳述式，UTF-8 編碼，覆寫原檔。`
 }
 
 // ── Scout ─────────────────────────────────────────────────────────────────────
 
 phase('Scout')
 const scout = await agent(
-  `List all .json files in ${PHIL_DIR}. Return only the full file paths as an array of strings.`,
+  `List all .js files in ${PHIL_DIR}. Return only the full file paths as an array of strings.`,
   { schema: FILES_SCHEMA }
 )
 log(`找到 ${scout.files.length} 個檔案`)

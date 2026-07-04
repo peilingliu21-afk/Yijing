@@ -7,7 +7,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 
 INPUT_DIR  = Path(__file__).parent / "OPS"
-OUTPUT_DIR = Path(__file__).parent / "JSON"
+OUTPUT_DIR = Path(__file__).parent / "TEXT"
 
 SKIP_STEMS = {
     "c01_tuan", "c02_da_xiang", "c03_xiao_xiang",
@@ -55,7 +55,15 @@ def strip_name_prefix(raw: str) -> str:
     return raw[colon + 1:].strip() if colon >= 0 else raw
 
 
+YAO_LABELS = ['初九', '初六', '九二', '六二', '九三', '六三', '九四', '六四',
+              '九五', '六五', '上九', '上六', '用九', '用六']
+
 def parse_yao_line(raw: str) -> dict:
+    # Labels are normally followed by '：', but at least one source page (否)
+    # uses '，' instead — match the label itself rather than assuming a colon.
+    for label in YAO_LABELS:
+        if raw.startswith(label) and raw[len(label):len(label) + 1] in '：，:,':
+            return {"label": label, "text": raw[len(label) + 1:].strip()}
     colon = raw.find('：')
     if colon >= 0:
         return {"label": raw[:colon], "text": raw[colon + 1:].strip()}
@@ -191,10 +199,13 @@ def main():
                 skipped += 1
                 continue
 
-            out_name = f"{data['hexagram_number']:02d}_{data['hexagram_name']}.json"
+            # .js rather than .json: reading.html loads hexagrams via <script>
+            # tags (each file calls HEX() to register itself) so it works on
+            # file:// with no server and no separate build/copy step.
+            out_name = f"{data['hexagram_number']:02d}_{data['hexagram_name']}.js"
             out_path = OUTPUT_DIR / out_name
             out_path.write_text(
-                json.dumps(data, ensure_ascii=False, indent=2),
+                f"HEX('text', {json.dumps(data, ensure_ascii=False, indent=2)});\n",
                 encoding='utf-8',
             )
             print(f"  OK   {path.name} → {out_name}")

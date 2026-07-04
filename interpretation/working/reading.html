@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周易讀本</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#f7f4ef;color:#1a1a1a;
+  font-family:'Courier New',monospace;font-size:18px;
+  max-width:980px;margin:0 auto;padding:20px;line-height:1.6;
+}
+
+#topbar{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+#title{font-size:1em;color:#1a1a1a;white-space:nowrap}
+#topbar .spacer{flex:1}
+.btn-nav{
+  background:none;color:#888;border:1px solid #e0ddd8;
+  padding:2px 10px;font-size:.78em;font-family:monospace;cursor:pointer;
+}
+.btn-nav:hover{color:#1a1a1a;border-color:#bbb}
+
+.block-label{
+  font-size:.78em;color:#999;text-align:center;
+  border-bottom:1px solid #e0ddd8;padding-bottom:4px;margin-bottom:8px;
+}
+
+#blocks-row{
+  display:flex;gap:40px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:16px;padding-bottom:10px;
+}
+.block{display:flex;flex-direction:column;align-items:center}
+
+.selcell{
+  display:inline-block;width:1.55em;text-align:center;
+  font-size:24px;color:#ccc;cursor:pointer;user-select:none;line-height:1.5;
+}
+.selcell:hover{color:#666}
+.selcell.cur{color:#1a1a1a}
+
+#selector{display:grid;grid-template-columns:repeat(8, 1.9em);justify-items:center}
+#grid-selector{display:grid;grid-template-columns:repeat(9, 1.9em);justify-items:center}
+.grid-axis{font-size:19px;color:#bbb;line-height:1.55em}
+.grid-corner{width:1.55em}
+
+#main{display:flex;gap:28px;align-items:flex-start}
+
+#left{flex-shrink:0;width:calc(9ch + 18px)}
+#hex-block{
+  font-family:'Courier New',monospace;font-size:18px;
+  white-space:pre;line-height:1.2;
+  border:1px solid #ddd;padding:6px 8px;
+  background:#fafaf8;
+}
+.hexrow{transition:background .12s}
+.hexrow.hl{background:#eae4d8}
+#hex-caption{font-size:.88em;color:#666;text-align:center;margin-top:8px;line-height:1.5}
+#hex-caption .glyph{font-size:1.5em;color:#1a1a1a}
+
+#right{flex:1;min-width:0}
+
+.sect{margin-bottom:22px}
+.sect-hd{font-size:.78em;color:#999;border-bottom:1px solid #e0ddd8;margin-bottom:6px}
+.para{margin-bottom:6px}
+.lbl{color:#999;font-size:.88em;margin-right:.5em}
+.yao{margin-bottom:8px}
+.yao .yl{color:#666;margin-right:.6em}
+.xx{font-size:.88em;color:#999;padding-left:2.2em}
+.grp{margin-bottom:6px;cursor:default}
+.grp:hover{background:#f0ece3}
+.grp .gl{color:#666;margin-right:.6em}
+.wy .para{font-size:.94em;margin-bottom:10px}
+.msg{color:#999;font-size:.88em}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <span id="title">周易讀本</span>
+  <span class="spacer"></span>
+  <button class="btn-nav" onclick="nav(-1)">◀ 前卦</button>
+  <button class="btn-nav" onclick="nav(1)">後卦 ▶</button>
+</div>
+
+<div id="blocks-row">
+  <div class="block">
+    <div class="block-label">卦序</div>
+    <div id="selector"></div>
+  </div>
+  <div class="block">
+    <div class="block-label">上下卦表</div>
+    <div id="grid-selector"></div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="left">
+    <div id="hex-block"></div>
+    <div id="hex-caption"></div>
+  </div>
+  <div id="right"></div>
+</div>
+
+<script>
+'use strict';
+
+// ── data registry ─────────────────────────────────────────────────────────────
+// Each file in TEXT/ and PHIL/ is a plain object literal wrapped in a call to
+// HEX(kind, obj). Loading it as a <script> (rather than fetching it as data)
+// means the page works straight off file:// with no server and no build step —
+// the file registers itself when it runs, instead of being read as text.
+const TEXT_BY_NUM = {};
+const PHIL_BY_NUM = {};
+function HEX(kind, obj){
+  if(kind==='text') TEXT_BY_NUM[obj.hexagram_number] = obj;
+  else if(kind==='phil') PHIL_BY_NUM[obj.hexagram_number] = obj;
+}
+</script>
+
+<!-- 64 source-text files -->
+<script src="TEXT/01_乾.js"></script>
+<script src="TEXT/02_坤.js"></script>
+<script src="TEXT/03_屯.js"></script>
+<script src="TEXT/04_蒙.js"></script>
+<script src="TEXT/05_需.js"></script>
+<script src="TEXT/06_訟.js"></script>
+<script src="TEXT/07_師.js"></script>
+<script src="TEXT/08_比.js"></script>
+<script src="TEXT/09_小畜.js"></script>
+<script src="TEXT/10_履.js"></script>
+<script src="TEXT/11_泰.js"></script>
+<script src="TEXT/12_否.js"></script>
+<script src="TEXT/13_同人.js"></script>
+<script src="TEXT/14_大有.js"></script>
+<script src="TEXT/15_謙.js"></script>
+<script src="TEXT/16_豫.js"></script>
+<script src="TEXT/17_隨.js"></script>
+<script src="TEXT/18_蠱.js"></script>
+<script src="TEXT/19_臨.js"></script>
+<script src="TEXT/20_觀.js"></script>
+<script src="TEXT/21_噬嗑.js"></script>
+<script src="TEXT/22_賁.js"></script>
+<script src="TEXT/23_剝.js"></script>
+<script src="TEXT/24_復.js"></script>
+<script src="TEXT/25_无妄.js"></script>
+<script src="TEXT/26_大畜.js"></script>
+<script src="TEXT/27_頤.js"></script>
+<script src="TEXT/28_大過.js"></script>
+<script src="TEXT/29_坎.js"></script>
+<script src="TEXT/30_離.js"></script>
+<script src="TEXT/31_咸.js"></script>
+<script src="TEXT/32_恆.js"></script>
+<script src="TEXT/33_遯.js"></script>
+<script src="TEXT/34_大壯.js"></script>
+<script src="TEXT/35_晉.js"></script>
+<script src="TEXT/36_明夷.js"></script>
+<script src="TEXT/37_家人.js"></script>
+<script src="TEXT/38_睽.js"></script>
+<script src="TEXT/39_蹇.js"></script>
+<script src="TEXT/40_解.js"></script>
+<script src="TEXT/41_損.js"></script>
+<script src="TEXT/42_益.js"></script>
+<script src="TEXT/43_夬.js"></script>
+<script src="TEXT/44_姤.js"></script>
+<script src="TEXT/45_萃.js"></script>
+<script src="TEXT/46_升.js"></script>
+<script src="TEXT/47_困.js"></script>
+<script src="TEXT/48_井.js"></script>
+<script src="TEXT/49_革.js"></script>
+<script src="TEXT/50_鼎.js"></script>
+<script src="TEXT/51_震.js"></script>
+<script src="TEXT/52_艮.js"></script>
+<script src="TEXT/53_漸.js"></script>
+<script src="TEXT/54_歸妹.js"></script>
+<script src="TEXT/55_豐.js"></script>
+<script src="TEXT/56_旅.js"></script>
+<script src="TEXT/57_巽.js"></script>
+<script src="TEXT/58_兌.js"></script>
+<script src="TEXT/59_渙.js"></script>
+<script src="TEXT/60_節.js"></script>
+<script src="TEXT/61_中孚.js"></script>
+<script src="TEXT/62_小過.js"></script>
+<script src="TEXT/63_既濟.js"></script>
+<script src="TEXT/64_未濟.js"></script>
+
+<!-- 64 PHIL skeleton files -->
+<script src="PHIL/01_乾.js"></script>
+<script src="PHIL/02_坤.js"></script>
+<script src="PHIL/03_屯.js"></script>
+<script src="PHIL/04_蒙.js"></script>
+<script src="PHIL/05_需.js"></script>
+<script src="PHIL/06_訟.js"></script>
+<script src="PHIL/07_師.js"></script>
+<script src="PHIL/08_比.js"></script>
+<script src="PHIL/09_小畜.js"></script>
+<script src="PHIL/10_履.js"></script>
+<script src="PHIL/11_泰.js"></script>
+<script src="PHIL/12_否.js"></script>
+<script src="PHIL/13_同人.js"></script>
+<script src="PHIL/14_大有.js"></script>
+<script src="PHIL/15_謙.js"></script>
+<script src="PHIL/16_豫.js"></script>
+<script src="PHIL/17_隨.js"></script>
+<script src="PHIL/18_蠱.js"></script>
+<script src="PHIL/19_臨.js"></script>
+<script src="PHIL/20_觀.js"></script>
+<script src="PHIL/21_噬嗑.js"></script>
+<script src="PHIL/22_賁.js"></script>
+<script src="PHIL/23_剝.js"></script>
+<script src="PHIL/24_復.js"></script>
+<script src="PHIL/25_无妄.js"></script>
+<script src="PHIL/26_大畜.js"></script>
+<script src="PHIL/27_頤.js"></script>
+<script src="PHIL/28_大過.js"></script>
+<script src="PHIL/29_坎.js"></script>
+<script src="PHIL/30_離.js"></script>
+<script src="PHIL/31_咸.js"></script>
+<script src="PHIL/32_恆.js"></script>
+<script src="PHIL/33_遯.js"></script>
+<script src="PHIL/34_大壯.js"></script>
+<script src="PHIL/35_晉.js"></script>
+<script src="PHIL/36_明夷.js"></script>
+<script src="PHIL/37_家人.js"></script>
+<script src="PHIL/38_睽.js"></script>
+<script src="PHIL/39_蹇.js"></script>
+<script src="PHIL/40_解.js"></script>
+<script src="PHIL/41_損.js"></script>
+<script src="PHIL/42_益.js"></script>
+<script src="PHIL/43_夬.js"></script>
+<script src="PHIL/44_姤.js"></script>
+<script src="PHIL/45_萃.js"></script>
+<script src="PHIL/46_升.js"></script>
+<script src="PHIL/47_困.js"></script>
+<script src="PHIL/48_井.js"></script>
+<script src="PHIL/49_革.js"></script>
+<script src="PHIL/50_鼎.js"></script>
+<script src="PHIL/51_震.js"></script>
+<script src="PHIL/52_艮.js"></script>
+<script src="PHIL/53_漸.js"></script>
+<script src="PHIL/54_歸妹.js"></script>
+<script src="PHIL/55_豐.js"></script>
+<script src="PHIL/56_旅.js"></script>
+<script src="PHIL/57_巽.js"></script>
+<script src="PHIL/58_兌.js"></script>
+<script src="PHIL/59_渙.js"></script>
+<script src="PHIL/60_節.js"></script>
+<script src="PHIL/61_中孚.js"></script>
+<script src="PHIL/62_小過.js"></script>
+<script src="PHIL/63_既濟.js"></script>
+<script src="PHIL/64_未濟.js"></script>
+
+<script>
+'use strict';
+
+const LINE_NAME = ['','初','二','三','四','五','上'];
+
+// Trigram binary value (0-7): bit0 = bottom line, bit1 = middle, bit2 = top;
+// yang=1, yin=0. This ordering is derived directly from each hexagram's own
+// line pattern, so the 8x8 table below needs no separate lookup table.
+const TRI_ORDER = ['坤','震','坎','兌','艮','離','巽','乾']; // index 0..7
+const TRI_SYM   = {'坤':'☷','震':'☳','坎':'☵','兌':'☱','艮':'☶','離':'☲','巽':'☴','乾':'☰'};
+
+const MANIFEST = Object.values(TEXT_BY_NUM)
+  .map(h => ({ number: h.hexagram_number, name: h.hexagram_name }))
+  .sort((a, b) => a.number - b.number);
+
+let cur = 1;
+
+function glyph(n){ return String.fromCodePoint(0x4DC0 + n - 1); }
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── merge TEXT + PHIL for one hexagram ────────────────────────────────────────
+function loadHex(n){
+  const src = TEXT_BY_NUM[n];
+  if(!src) return null;
+  const entry = {
+    number:     src.hexagram_number,
+    name:       src.hexagram_name,
+    art:        src.ascii_art,
+    gua_ci:     src.yi_jing.gua_ci,
+    yao_ci:     src.yi_jing.yao_ci,
+    tuan:       src.tuan,
+    da_xiang:   src.xiang.da_xiang,
+    xiao_xiang: src.xiang.xiao_xiang,
+  };
+  if(src.wen_yan) entry.wen_yan = src.wen_yan;
+  if(PHIL_BY_NUM[n]) entry.phil = PHIL_BY_NUM[n];
+  return entry;
+}
+
+// ── linear selector (卦序) ──────────────────────────────────────────────────
+function buildSelector(){
+  document.getElementById('selector').innerHTML = MANIFEST.map(h =>
+    `<span class="selcell${h.number===cur?' cur':''}" title="${h.number} ${esc(h.name)}"
+       onclick="go(${h.number})">${glyph(h.number)}</span>`
+  ).join('');
+}
+
+// ── 8x8 trigram grid selector (上下卦表) ───────────────────────────────────
+function lineYang(rowStr){ return !rowStr.includes(' '); }
+
+// art[] is top-to-bottom: art[0]=line6(上)...art[5]=line1(初)
+function trigramVals(art){
+  const lower = (lineYang(art[5])?1:0) | (lineYang(art[4])?2:0) | (lineYang(art[3])?4:0);
+  const upper = (lineYang(art[2])?1:0) | (lineYang(art[1])?2:0) | (lineYang(art[0])?4:0);
+  return { upper, lower };
+}
+
+const GRID = Array.from({length:8}, () => Array(8).fill(null));
+Object.values(TEXT_BY_NUM).forEach(h => {
+  if(!Array.isArray(h.ascii_art) || h.ascii_art.length !== 6){
+    console.warn(`第${h.hexagram_number}卦「${h.hexagram_name}」缺少完整 ascii_art，已從上下卦表略過`);
+    return;
+  }
+  const { upper, lower } = trigramVals(h.ascii_art);
+  GRID[upper][lower] = h.hexagram_number;
+});
+
+function buildGridSelector(){
+  let h = `<span class="grid-axis grid-corner"></span>`;
+  TRI_ORDER.forEach(t => h += `<span class="grid-axis">${TRI_SYM[t]}</span>`);
+  for(let r=0; r<8; r++){
+    h += `<span class="grid-axis">${TRI_SYM[TRI_ORDER[r]]}</span>`;
+    for(let c=0; c<8; c++){
+      const n = GRID[r][c];
+      const name = MANIFEST.find(m=>m.number===n)?.name || '';
+      h += `<span class="selcell${n===cur?' cur':''}" title="${n} ${esc(name)}"
+              onclick="go(${n})">${glyph(n)}</span>`;
+    }
+  }
+  document.getElementById('grid-selector').innerHTML = h;
+}
+
+// ── left column ───────────────────────────────────────────────────────────────
+function buildLeft(h){
+  document.getElementById('hex-block').innerHTML =
+    h.art.map((row,i)=>`<div class="hexrow" data-line="${6-i}">${esc(row)}</div>`).join('');
+  document.getElementById('hex-caption').innerHTML =
+    `<span class="glyph">${glyph(h.number)}</span><br>第${h.number}卦　${esc(h.name)}`;
+}
+
+function highlight(lines){
+  document.querySelectorAll('.hexrow').forEach(el=>{
+    el.classList.toggle('hl', lines.includes(+el.dataset.line));
+  });
+}
+
+// ── right column ──────────────────────────────────────────────────────────────
+function sect(hd, body){
+  return `<div class="sect"><div class="sect-hd">${hd}</div>${body}</div>`;
+}
+
+function buildRight(h){
+  let out = '';
+
+  out += sect('卦辭', `<div class="para">${esc(h.name)}：${esc(h.gua_ci)}</div>`);
+  out += sect('彖', `<div class="para">${esc(h.tuan)}</div>`);
+
+  if(h.phil){
+    const p = h.phil;
+    out += sect('釋　卦義',
+      `<div class="para"><span class="lbl">體</span>${esc(p.interpretation_ti||'')}</div>` +
+      (p.interpretation_yong
+        ? `<div class="para"><span class="lbl">用</span>${esc(p.interpretation_yong)}</div>` : ''));
+  }
+
+  out += sect('大象', `<div class="para">${esc(h.da_xiang)}</div>`);
+
+  if(h.phil){
+    const p = h.phil;
+    out += sect('釋　結構',
+      `<div class="para"><span class="lbl">體</span>${esc(p.structural_rationale_ti||'')}</div>` +
+      (p.structural_rationale_yong
+        ? `<div class="para"><span class="lbl">用</span>${esc(p.structural_rationale_yong)}</div>` : ''));
+  }
+
+  out += sect('爻辭', h.yao_ci.map((y,i)=>
+    `<div class="yao">
+       <div><span class="yl">${esc(y.label)}</span>${esc(y.text)}</div>
+       ${h.xiao_xiang[i] ? `<div class="xx">象曰　${esc(h.xiao_xiang[i])}</div>` : ''}
+     </div>`
+  ).join(''));
+
+  if(h.phil){
+    const p = h.phil;
+    out += sect('釋　爻位', (p.line_position_key||[]).map(g=>
+      `<div class="grp" data-lines="${g.lines.join(',')}">
+         <span class="gl">${g.lines.map(l=>LINE_NAME[l]).join('·')}</span>${esc(g.meaning)}
+       </div>`
+    ).join(''));
+    const yy = p.yin_yang_key || {};
+    out += sect('釋　陰陽',
+      `<div class="para"><span class="lbl">陽</span>${esc(yy.yang||'')}</div>` +
+      `<div class="para"><span class="lbl">陰</span>${esc(yy.yin||'')}</div>`);
+  }
+
+  if(h.wen_yan){
+    out += sect('文言', `<div class="wy">${
+      h.wen_yan.map(p=>`<div class="para">${esc(p)}</div>`).join('')
+    }</div>`);
+  }
+
+  const right = document.getElementById('right');
+  right.innerHTML = out;
+
+  right.querySelectorAll('.grp').forEach(el=>{
+    const lines = el.dataset.lines.split(',').map(Number);
+    el.addEventListener('mouseenter', ()=>highlight(lines));
+    el.addEventListener('mouseleave', ()=>highlight([]));
+  });
+}
+
+// ── navigation ────────────────────────────────────────────────────────────────
+function go(n){
+  if(!MANIFEST.some(h=>h.number===n)) return;
+  cur = n;
+  location.hash = '#'+n;
+  render();
+}
+function nav(d){
+  const idx = MANIFEST.findIndex(h=>h.number===cur);
+  const next = MANIFEST[(idx + d + MANIFEST.length) % MANIFEST.length];
+  if(next) go(next.number);
+}
+
+function render(){
+  const h = loadHex(cur);
+  if(!h){ document.getElementById('right').innerHTML = '<div class="msg">找不到此卦</div>'; return; }
+  document.title = `周易讀本　${h.number} ${h.name}`;
+  buildSelector();
+  buildGridSelector();
+  buildLeft(h);
+  buildRight(h);
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowLeft')  nav(-1);
+  if(e.key==='ArrowRight') nav(1);
+});
+window.addEventListener('hashchange', ()=>{
+  const n = parseInt(location.hash.slice(1));
+  if(n && n!==cur){ cur=n; render(); }
+});
+
+const n0 = parseInt(location.hash.slice(1));
+if(n0 && MANIFEST.some(h=>h.number===n0)) cur = n0;
+render();
+</script>
+</body>
+</html>

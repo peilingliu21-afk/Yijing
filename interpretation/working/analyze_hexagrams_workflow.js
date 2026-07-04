@@ -2,13 +2,13 @@ export const meta = {
   name: 'analyze-hexagrams',
   description: 'Research and analyze all 64 Yijing hexagrams using sinological sources',
   phases: [
-    { title: 'Scout',    detail: 'List hexagram JSON files' },
+    { title: 'Scout',    detail: 'List hexagram TEXT files' },
     { title: 'Research', detail: 'Verbose research per hexagram' },
     { title: 'Condense', detail: 'Extract clean skeleton from research' },
   ],
 }
 
-const JSON_DIR      = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/JSON'
+const TEXT_DIR      = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/TEXT'
 const RESEARCH_DIR  = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/RESEARCH'
 const OUT_DIR       = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/PHIL'
 const BATCH_SIZE    = 3
@@ -36,13 +36,13 @@ const FILES_SCHEMA = {
 
 function buildResearchPrompt(hex) {
   const pad    = String(hex.number).padStart(2, '0')
-  const inPath = `${JSON_DIR}/${hex.filename}`
+  const inPath = `${TEXT_DIR}/${hex.filename}`
 
   return `你是一位易學研究助理，任務是對《周易》第 ${hex.number} 卦：${hex.name} 進行研究。
 
 首先，讀取此卦的原文資料檔案：
 ${inPath}
-（此檔包含卦辭、爻辭、彖、象的原文，以及 ASCII 卦象，供你參考結構。）
+（此檔內容為 \`HEX('text', { ... });\`——一個 JS 函式呼叫，括號內的物件字面量包含卦辭、爻辭、彖、象的原文，以及 ASCII 卦象，供你參考結構。這層包裝只是讓網頁能以 <script> 標籤直接載入，讀取時直接看物件內容即可。）
 
 然後，依以下步驟進行網路搜尋。所有輸出均以繁體中文書寫。輸出格式為純文字，不需要 JSON，盡量詳盡。
 
@@ -87,7 +87,7 @@ ${RESEARCH_DIR}/${pad}_${hex.name}.txt
 function buildCondensePrompt(hex) {
   const pad          = String(hex.number).padStart(2, '0')
   const researchPath = `${RESEARCH_DIR}/${pad}_${hex.name}.txt`
-  const outPath      = `${OUT_DIR}/${pad}_${hex.name}.json`
+  const outPath      = `${OUT_DIR}/${pad}_${hex.name}.js`
 
   return `你的任務是將《周易》第 ${hex.number} 卦：${hex.name} 的研究資料提取為骨架。
 
@@ -124,8 +124,9 @@ yin_yang_key：
   不得：以個別爻的行為來定義、說「陽代表剛健陰代表柔順」這類通泛答案。
   只要：在此卦主題下，陰與陽各自對應的具體性質或狀態。
 
-輸出 JSON（確保目錄存在後寫入，UTF-8 編碼）：
-{
+輸出檔案內容必須是以下形式的 JS 陳述式（確保目錄存在後寫入，UTF-8 編碼）——這是為了讓網頁能以 <script> 標籤直接載入而不需要伺服器，物件字面量部分仍須是有效 JSON：
+
+HEX('phil', {
   "hexagram_number": ${hex.number},
   "hexagram_name": "${hex.name}",
   "interpretation": "...",
@@ -137,7 +138,7 @@ yin_yang_key：
     "yang": "陽爻在此卦的具體象徵（短語）",
     "yin":  "陰爻在此卦的具體象徵（短語）"
   }
-}
+});
 
 `
 }
@@ -146,8 +147,8 @@ yin_yang_key：
 
 phase('Scout')
 const scout = await agent(
-  `List all .json files in the directory: ${JSON_DIR}
-Return each file as structured data: number (integer parsed from the NN_ prefix), name (Chinese characters between _ and .json), filename (full filename including .json).`,
+  `List all .js files in the directory: ${TEXT_DIR}
+Return each file as structured data: number (integer parsed from the NN_ prefix), name (Chinese characters between _ and .js), filename (full filename including .js).`,
   { schema: FILES_SCHEMA }
 )
 log(`找到 ${scout.hexagrams.length} 卦`)
@@ -177,7 +178,7 @@ phase('Scout')
 const needsWork = (await Promise.all(
   allHexagrams.map(async hex => {
     const pad      = String(hex.number).padStart(2, '0')
-    const philPath = `${OUT_DIR}/${pad}_${hex.name}.json`
+    const philPath = `${OUT_DIR}/${pad}_${hex.name}.js`
     const done     = await fileExists(philPath)
     if (done) log(`跳過 ${pad} ${hex.name}（已完成）`)
     return done ? null : hex

@@ -1,0 +1,19 @@
+HEX('phil', {
+  "hexagram_number": 35,
+  "hexagram_name": "晉",
+  "interpretation_ti": "此卦是柔順者依附光明、順勢而上、逐步顯達的上進處境。",
+  "interpretation_yong": "其顯達之道在守柔中正、自昭明德，而非恃剛強進。",
+  "structural_rationale_ti": "下卦為坤（地、順），上卦為離（火、日、明）；日出於地上、明由隱而顯，象徵在光明開展之世由下而上循序升顯的上進。",
+  "structural_rationale_yong": "",
+  "interpretation": "此卦是柔順者依附光明、順勢而上、逐步顯達的上進處境。其顯達之道在守柔中正、自昭明德，而非恃剛強進。",
+  "structural_rationale": "下卦為坤（地、順），上卦為離（火、日、明）；日出於地上、明由隱而顯，象徵在光明開展之世由下而上循序升顯的上進。",
+  "line_position_key": [
+    { "lines": [1, 2, 3], "meaning": "順德眾陰，集群向上進行的動力主體" },
+    { "lines": [5], "meaning": "柔中居尊、主宰光明的晉升歸宿" },
+    { "lines": [4, 6], "meaning": "逆時強據之陽，進之過分的危戒" }
+  ],
+  "yin_yang_key": {
+    "yang": "剛強據守、恃力猛進而逆於升明之時，故多危厲",
+    "yin": "柔順附麗光明、順勢漸升而合於升明之道，故多得吉"
+  }
+});

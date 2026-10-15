@@ -7,8 +7,11 @@ export const meta = {
   ],
 }
 
-const PHIL_DIR     = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/PHIL'
-const RESEARCH_DIR = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/RESEARCH'
+// Run with the repository root as the working directory, or provide an absolute root.
+const ROOT_DIR = globalThis.YIJING_ROOT ?? '.'
+
+const PHIL_DIR     = `${ROOT_DIR}/site/data/phil`
+const RESEARCH_DIR = `${ROOT_DIR}/materials/research`
 const BATCH_SIZE   = 8
 
 const FILES_SCHEMA = {

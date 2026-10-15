@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Convert Yijing hexagram XHTML files to structured JSON."""
+"""Convert Yijing hexagram XHTML files to HEX-wrapped JavaScript data."""
 
 import json
 import re
 from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 
-INPUT_DIR  = Path(__file__).parent / "OPS"
-OUTPUT_DIR = Path(__file__).parent / "TEXT"
+ROOT_DIR = Path(__file__).resolve().parents[1]
+INPUT_DIR = ROOT_DIR / "materials" / "sources" / "ops"
+OUTPUT_DIR = ROOT_DIR / "site" / "data" / "text"
 
 SKIP_STEMS = {
     "c01_tuan", "c02_da_xiang", "c03_xiao_xiang",

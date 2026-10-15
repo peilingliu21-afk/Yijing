@@ -8,9 +8,12 @@ export const meta = {
   ],
 }
 
-const TEXT_DIR      = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/TEXT'
-const RESEARCH_DIR  = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/RESEARCH'
-const OUT_DIR       = '/Users/zzhao89/Documents/Git_Code/Yijing/interpretation/working/PHIL'
+// Run with the repository root as the working directory, or provide an absolute root.
+const ROOT_DIR = globalThis.YIJING_ROOT ?? '.'
+
+const TEXT_DIR      = `${ROOT_DIR}/site/data/text`
+const RESEARCH_DIR  = `${ROOT_DIR}/materials/research`
+const OUT_DIR       = `${ROOT_DIR}/site/data/phil`
 const BATCH_SIZE    = 3
 
 const FILES_SCHEMA = {
